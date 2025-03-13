@@ -37,6 +37,6 @@ class Timekeeper(QWidget):
         minutes = self.time.minute()
         seconds = self.time.second()
         milliseconds = self.time.msec()//10
-        seconds += milliseconds if milliseconds > 50 else 0
+        seconds += 1 if milliseconds > 50 else 0
         total_seconds = hours*3600+minutes*60+seconds
         return total_seconds
