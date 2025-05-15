@@ -1,4 +1,5 @@
 import sqlite3
+import os
 
 
 class Connect:
@@ -8,10 +9,13 @@ class Connect:
 
     def __new__(cls):
         """Ensures only one instance of Database exists"""
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        # Construct the absolute path
+        db_path = os.path.join(base_dir, "time.db")
         if cls._instance is None:
             cls._instance = super(Connect, cls).__new__(cls)
             cls._instance.conn = sqlite3.connect(
-                "time.db", check_same_thread=False)
+                db_path, check_same_thread=False)
             cls._instance.create_tables()
         return cls._instance
 
@@ -24,7 +28,8 @@ class Connect:
                     avatar BLOB,
                     name TEXT UNIQUE NOT NULL,
                     password TEXT,
-                    active INTEGER
+                    active INTEGER,
+                    isLogged INTEGER
                 )''')
 
             self.conn.execute('''
@@ -48,10 +53,27 @@ class Connect:
                     id INTEGER PRIMARY KEY,
                     activity_id INTEGER REFERENCES activities(id) ON DELETE CASCADE,
                     start_date TEXT NOT NULL,
-                    total_seconds INTEGER,
+                    total_time INTEGER,
                     end_date TEXT,
                     active INTEGER
                 )''')
+
+            count = self.conn.execute(
+                '''SELECT COUNT(*) FROM users''').fetchone()[0]
+            print("count=", count)
+            if count == 0:
+                self.conn.execute('''
+                        INSERT INTO users(name,isLogged,active) VALUES ('Common',1,1)
+                ''')
+                id = self.conn.execute(
+                    '''SELECT id FROM users WHERE name="Common"''').fetchone()[0]
+
+                count = self.conn.execute(
+                    '''SELECT COUNT(*) FROM categories''').fetchone()[0]
+                if count == 0:
+                    self.conn.execute('''
+                            INSERT INTO categories(category_name,active,user_id) VALUES ('Generic',1,?)
+                    ''', (id,))
 
     def close(self):
         """Close the database connection"""
