@@ -40,6 +40,4 @@ if __name__ == "__main__":
     # QTimer.singleShot(5000, lambda: print(time2.get_time()))
     # QTimer.singleShot(5000, lambda: print(time2.get_formated_time()))
     QTimer.singleShot(5000, get_time)
-    # test = QWidget()
-    # test.show()
     sys.exit(app.exec())
